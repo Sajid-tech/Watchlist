@@ -1,25 +1,53 @@
-import logo from './logo.svg';
+// App.js
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './auth';
+import { WatchlistProvider } from './watchlist';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import MovieSearch from './components/MovieSearch';
+import Watchlist from './components/Watchlist';
+import Navbar from './components/Navbar';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <WatchlistProvider>
+        <BrowserRouter>
+          <div className="app">
+            <Navbar />
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route
+                path="/search"
+                element={
+                  <PrivateRoute>
+                    <MovieSearch />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/watchlist"
+                element={
+                  <PrivateRoute>
+                    <Watchlist />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="*" element={<Navigate to="/login" />} />
+            </Routes>
+          </div>
+        </BrowserRouter>
+      </WatchlistProvider>
+    </AuthProvider>
   );
+}
+
+function PrivateRoute({ children }) {
+  const { currentUser } = useAuth();
+  return currentUser ? children : <Navigate to="/login" />;
 }
 
 export default App;
